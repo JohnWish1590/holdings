@@ -26,10 +26,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas openpyxl playwright python-docx
+          # 新增了 requests 库，用于发送 Telegram 消息
+          pip install pandas openpyxl playwright python-docx requests
           playwright install chromium
 
       - name: Run scraper script
+        env:
+          # === 关键修改：注入 Telegram 密钥 ===
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python scripts/scraper.py
 
@@ -37,7 +42,12 @@ jobs:
         run: |
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
-          git add data/
+          
+          # === 关键修改：提交所有变化 ===
+          # 原来只提交 data/，现在改为提交所有 (.)
+          # 这样 docs/ 里的网页文件和 data/ 里的历史数据都会被保存
+          git add .
+          
           # 只有当有新数据时才提交
           git commit -m "Auto-update: Daily data fetch" || echo "No changes to commit"
           git push
