@@ -1,6 +1,6 @@
 import json
 import os
-import requests # 必须确保安装了 requests
+import requests
 from datetime import datetime
 import pandas as pd
 from playwright.sync_api import sync_playwright
@@ -10,7 +10,8 @@ URL_HOME = "https://petermoportfolio.com/"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 HOLDINGS_FILE = os.path.join(DATA_DIR, "holdings_history.json")
-LATEST_HTML = os.path.join(BASE_DIR, "docs", "index.html") # 为了让 Pages 能用，建议放 docs
+# 网页文件生成位置 (docs 文件夹用于 GitHub Pages)
+LATEST_HTML = os.path.join(BASE_DIR, "docs", "index.html")
 
 # 确保目录存在
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -91,7 +92,6 @@ def compare_holdings(today_data, yesterday_data):
     return changes, len(changes) > 0
 
 def generate_html_report(date_str, today_data, changes):
-    # CSS: 红色代表新进/加仓，绿色代表卖出/清仓
     css = """
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; background: #fff; }
@@ -106,6 +106,7 @@ def generate_html_report(date_str, today_data, changes):
         td { padding: 8px; border-bottom: 1px solid #eee; }
         .diff-pos { color: #d32f2f; font-weight: bold; }
         .diff-neg { color: #2e7d32; font-weight: bold; }
+        .footer { margin-top: 20px; font-size: 12px; color: #999; text-align: center; }
     </style>
     """
     
@@ -132,12 +133,12 @@ def generate_html_report(date_str, today_data, changes):
             """
         html += "</tbody></table>"
     else:
-        html += "<p>✅ 今日无持仓变动。</p>"
+        html += "<p style='padding: 10px; background: #f0fdf4; color: #166534; border-radius: 6px;'>✅ 今日无持仓变动。</p>"
         
     html += "<h3>📊 最新持仓</h3><table><thead><tr><th>代码</th><th>名称</th><th>仓位</th></tr></thead><tbody>"
     for item in today_data:
         html += f"<tr><td>{item['code']}</td><td>{item['name']}</td><td>{item['share']}%</td></tr>"
-    html += "</tbody></table></body></html>"
+    html += f"</tbody></table><div class='footer'>更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div></body></html>"
     return html
 
 def send_telegram(message, file_path=None):
@@ -162,14 +163,14 @@ def send_telegram(message, file_path=None):
     except Exception as e:
         print(f"Telegram 文字发送失败: {e}")
 
-    # 2. 发送 HTML 文件 (如果有变化)
+    # 2. 发送 HTML 文件 (附件)
     if file_path and os.path.exists(file_path):
         url_doc = f"https://api.telegram.org/bot{token}/sendDocument"
         try:
             with open(file_path, 'rb') as f:
                 requests.post(
                     url_doc, 
-                    data={"chat_id": chat_id, "caption": "📊 详细持仓日报 (点击打开)"}, 
+                    data={"chat_id": chat_id, "caption": "📊 详细持仓日报文件"}, 
                     files={"document": f}
                 )
             print("Telegram 文件已发送")
@@ -190,21 +191,20 @@ if __name__ == "__main__":
     changes, is_changed = compare_holdings(current_holdings, last_holdings)
     html_report = generate_html_report(today_str, current_holdings, changes)
     
-    # 保存历史
+    # 保存数据
     history[today_str] = current_holdings
     save_history(history)
-    
-    # 保存 HTML
     with open(LATEST_HTML, 'w', encoding='utf-8') as f:
         f.write(html_report)
     
-    # === 发送 Telegram ===
-    # 只有当有变动时，才发送文件。如果没变动，什么都不发 (以免打扰)
+    # === 修改：无论是否有变动，都发送 Telegram ===
+    summary = f"<b>📅 PeterPortfolio 监控日报</b>\n日期: {today_str}\n\n"
+    
     if is_changed:
-        summary = f"<b>🚨 PeterPortfolio 持仓变动提醒</b>\n日期: {today_str}\n\n"
-        summary += f"检测到 {len(changes)} 笔持仓变化，详情请查看下方文件 👇"
-        
-        print("发现变动，正在推送 Telegram...")
-        send_telegram(summary, LATEST_HTML)
+        summary += f"🚨 <b>检测到 {len(changes)} 笔持仓变动</b>\n详情请查看下方文件 👇"
     else:
-        print("无变动，不发送通知。")
+        summary += "✅ <b>今日持仓无变化</b>\nBot 运行正常，持续监控中 🫡"
+
+    print("正在推送 Telegram...")
+    # 发送消息，并总是附带最新的 HTML 报表文件
+    send_telegram(summary, LATEST_HTML)
