@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # 新增了 requests 库，用于发送 Telegram 消息
-          pip install pandas openpyxl playwright python-docx requests
+          pip install pandas openpyxl playwright python-docx requests yfinance
           playwright install chromium
 
       - name: Run scraper script
