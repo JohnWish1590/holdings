@@ -160,86 +160,151 @@ def compare_holdings(today_data, yesterday_data):
     return changes, len(changes) > 0
 
 def generate_html_report(date_str, today_data, changes):
+    # 动态计算图表的比例尺（找出今天最大的主动调仓幅度，作为 100% 宽度）
+    max_active = max([abs(c['active_diff']) for c in changes] + [0.1]) if changes else 0.1
+    max_passive = max([abs(c['passive_drift']) for c in changes] + [0.1]) if changes else 0.1
+
     css = """
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; color: #333; background: #f9fafb; }
-        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
-        .tag { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; color: white; display: inline-block; width: 45px; text-align: center; }
-        .new { background-color: #ef4444; } 
-        .buy { background-color: #f87171; } 
-        .sold { background-color: #16a34a; } 
-        .sell { background-color: #4ade80; } 
-        .drift { background-color: #94a3b8; } 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th { text-align: left; background: #f8fafc; padding: 12px 8px; font-size: 13px; color: #64748b; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; }
-        .diff-pos { color: #ef4444; font-weight: bold; }
-        .diff-neg { color: #16a34a; font-weight: bold; }
-        .sub-text { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
-        .footer { margin-top: 20px; font-size: 12px; color: #94a3b8; text-align: center; }
+        :root { --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --sub: #64748b; --border: #e2e8f0; 
+                --buy: #ef4444; --buy-light: #fee2e2; --sell: #10b981; --sell-light: #d1fae5; 
+                --drift: #94a3b8; --weight-bg: #e0e7ff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+               max-width: 950px; margin: 0 auto; padding: 20px; color: var(--text); background: var(--bg); }
+        .card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        h2 { margin-top: 0; border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+        th { text-align: center; padding: 12px 8px; font-weight: 600; color: var(--sub); border-bottom: 2px solid var(--border); }
+        th:first-child, td:first-child { text-align: left; }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--border); text-align: center; vertical-align: middle; }
+        
+        /* 标的名称列 */
+        .stock-name { font-weight: 600; font-size: 15px; }
+        .stock-code { font-size: 12px; color: var(--sub); margin-top: 2px; display: block; }
+        
+        /* 正负向柱状图容器 */
+        .dv-bar-container { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 140px; margin: 0 auto; }
+        .dv-left, .dv-right { flex: 1; display: flex; height: 16px; align-items: center; }
+        .dv-left { justify-content: flex-end; padding-right: 4px; border-right: 1px solid #cbd5e1; }
+        .dv-right { justify-content: flex-start; padding-left: 4px; border-left: 1px solid #cbd5e1; margin-left: -1px; }
+        
+        /* 柱子本体 */
+        .bar-sell { height: 12px; background: var(--sell); border-radius: 2px 0 0 2px; }
+        .bar-buy { height: 12px; background: var(--buy); border-radius: 0 2px 2px 0; }
+        .bar-drift { height: 6px; background: var(--drift); border-radius: 2px; opacity: 0.3; }
+        
+        /* 数据标签 */
+        .val-buy { color: var(--buy); font-weight: bold; }
+        .val-sell { color: var(--sell); font-weight: bold; }
+        .val-drift { color: var(--sub); font-size: 12px; }
+        
+        /* 仓位水位线 */
+        .weight-cell { position: relative; text-align: right !important; padding-right: 15px !important; font-weight: bold; font-family: monospace; font-size: 15px; }
+        .weight-bg { position: absolute; left: 0; top: 10%; height: 80%; background: var(--weight-bg); z-index: 0; border-radius: 4px; opacity: 0.6; }
+        .weight-text { position: relative; z-index: 1; }
+        
+        /* 弱化未操作的行 */
+        .row-passive { opacity: 0.6; filter: grayscale(50%); transition: all 0.2s; }
+        .row-passive:hover { opacity: 1; filter: grayscale(0%); background: #f8fafc; }
+        
+        .footer { text-align: center; font-size: 12px; color: var(--sub); margin-top: 20px; }
     </style>
     """
     
     html = f"""
     <html>
-    <head><meta charset="utf-8"><title>PeterPortfolio {date_str}</title>{css}</head>
+    <head><meta charset="utf-8"><title>PeterPortfolio 监控面板</title>{css}</head>
     <body>
         <div class="card">
-            <h2>📅 持仓深度解析 ({date_str})</h2>
+            <h2>🎯 真实调仓 X光机 ({date_str})</h2>
+            <p style="font-size:13px; color:var(--sub); margin-bottom:20px;">
+                * 图形化剥离市场波动。<b>彩色粗条</b>代表博主真实交易，向右(红)为买，向左(绿)为卖。
+            </p>
     """
     
     if changes:
         html += """
-            <p style="font-size:13px; color:#64748b; margin-bottom:15px;">
-                💡 <b>说明：</b>算法已接入真实市场行情。"主动动作"剔除了股价波动影响，代表博主真正的交易行为。
-            </p>
             <table>
                 <thead>
                     <tr>
-                        <th>诊断结论</th>
-                        <th>标的名称</th>
-                        <th>表面仓位变动</th>
-                        <th>被动浮动<br><span class="sub-text">(股价涨跌导致)</span></th>
-                        <th>⭐ 真实主动动作<br><span class="sub-text">(剔除股价影响)</span></th>
-                        <th>最新仓位</th>
+                        <th style="width: 25%;">标的</th>
+                        <th style="width: 20%;">🌊 被动漂移 (受股价影响)</th>
+                        <th style="width: 35%;">⭐ 真实主动动作 (剔除涨跌)</th>
+                        <th style="width: 20%; text-align: right; padding-right: 15px;">最新仓位</th>
                     </tr>
                 </thead>
                 <tbody>
         """
         for item in changes:
-            # 格式化数字
-            total_str = f"{item['total_diff']:+.2f}%"
-            active_str = f"{item['active_diff']:+.2f}%"
-            passive_str = f"{item['passive_drift']:+.2f}%"
+            is_active = item['type'] in ['buy', 'sell', 'new', 'sold']
+            row_class = "" if is_active else "row-passive"
             
-            # 样式调整
-            t_class = "diff-pos" if item['total_diff'] > 0 else "diff-neg"
-            a_class = "diff-pos" if item['active_diff'] > 0 else "diff-neg"
-            p_class = "diff-pos" if item['passive_drift'] > 0 else "diff-neg"
-            if abs(item['active_diff']) < 0.1: a_class = "sub-text" # 主动动作极小时变灰
+            # 1. 计算主动动作柱状图宽度
+            act_val = item['active_diff']
+            act_width = min((abs(act_val) / max_active) * 100, 100)
             
-            tag_map = {"new": "新进", "sold": "清仓", "buy": "主动买", "sell": "主动卖", "drift": "随波飘"}
+            if act_val > 0.15: # 加仓
+                act_html = f"""
+                <div class="dv-bar-container">
+                    <div class="dv-left"></div>
+                    <div class="dv-right"><div class="bar-buy" style="width: {act_width}%;"></div></div>
+                </div>
+                <div class="val-buy">+{act_val:.2f}%</div>
+                """
+            elif act_val < -0.15: # 减仓
+                act_html = f"""
+                <div class="dv-bar-container">
+                    <div class="dv-left"><div class="bar-sell" style="width: {act_width}%;"></div></div>
+                    <div class="dv-right"></div>
+                </div>
+                <div class="val-sell">{act_val:.2f}%</div>
+                """
+            else: # 无明显动作
+                act_html = f'<div class="val-drift">未见操作 ({act_val:+.2f}%)</div>'
+
+            # 2. 计算被动漂移柱状图宽度 (做得更细更浅，作为辅助参考)
+            pas_val = item['passive_drift']
+            pas_width = min((abs(pas_val) / max_passive) * 100, 100)
+            
+            if pas_val > 0:
+                pas_html = f'<div class="dv-bar-container"><div class="dv-left"></div><div class="dv-right"><div class="bar-drift" style="width:{pas_width}%; background:var(--buy);"></div></div></div><div class="val-drift">+{pas_val:.2f}%</div>'
+            else:
+                pas_html = f'<div class="dv-bar-container"><div class="dv-left"><div class="bar-drift" style="width:{pas_width}%; background:var(--sell);"></div></div><div class="dv-right"></div></div><div class="val-drift">{pas_val:.2f}%</div>'
+
+            # 3. 计算最新仓位的水位线背景
+            weight = item['now']
             
             html += f"""
-            <tr>
-                <td><span class="tag {item['type']}">{tag_map[item['type']]}</span></td>
-                <td><b>{item['name']}</b><br><span class="sub-text">{item['code']}</span></td>
-                <td class="{t_class}">{total_str}</td>
-                <td class="{p_class}">{passive_str}</td>
-                <td class="{a_class}">{active_str}</td>
-                <td><b>{item['now']}%</b></td>
+            <tr class="{row_class}">
+                <td>
+                    <span class="stock-name">{item['name']}</span>
+                    <span class="stock-code">{item['code']}</span>
+                </td>
+                <td>{pas_html}</td>
+                <td>{act_html}</td>
+                <td class="weight-cell">
+                    <div class="weight-bg" style="width: {weight}%;"></div>
+                    <span class="weight-text">{weight:.2f}%</span>
+                </td>
             </tr>
             """
         html += "</tbody></table>"
     else:
-        html += "<p style='padding: 15px; background: #f0fdf4; color: #166534; border-radius: 8px;'>✅ 今日未检测到博主的实质性调仓动作。</p>"
+        html += "<div style='padding: 20px; text-align: center; color: var(--sell); background: var(--sell-light); border-radius: 8px;'>🍵 今日大盘风平浪静，未检测到任何实质性调仓。</div>"
         
     html += "</div><div class='card'>"
-    html += "<h3>📊 最新全局持仓分布</h3><table><thead><tr><th>代码</th><th>名称</th><th>仓位</th></tr></thead><tbody>"
+    html += "<h2>📊 完整大盘阵型</h2><table><thead><tr><th>标的</th><th style='text-align:right; padding-right:15px;'>总配比</th></tr></thead><tbody>"
     for item in today_data:
-        html += f"<tr><td>{item['code']}</td><td><b>{item['name']}</b></td><td>{item['share']}%</td></tr>"
-    html += f"</tbody></table></div><div class='footer'>数据获取与智能测算时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div></body></html>"
+        html += f"""
+        <tr>
+            <td><b>{item['name']}</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">{item['code']}</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: {item['share']}%;"></div>
+                <span class="weight-text">{item['share']}%</span>
+            </td>
+        </tr>
+        """
+    html += f"</tbody></table></div><div class='footer'>🤖 量化引擎更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div></body></html>"
     return html
 
 def send_telegram(message, file_path=None):
