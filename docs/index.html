@@ -1,148 +1,389 @@
 
     <html>
-    <head><meta charset="utf-8"><title>PeterPortfolio 2026-02-14</title>
+    <head><meta charset="utf-8"><title>PeterPortfolio 监控面板</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; background: #fff; }
-        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .tag { padding: 3px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; display: inline-block; width: 40px; text-align: center; }
-        .new { background-color: #d32f2f; } 
-        .buy { background-color: #f44336; } 
-        .sold { background-color: #2e7d32; } 
-        .sell { background-color: #4caf50; } 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th { text-align: left; background: #f5f5f5; padding: 8px; font-size: 12px; color: #666; }
-        td { padding: 8px; border-bottom: 1px solid #eee; }
-        .diff-pos { color: #d32f2f; font-weight: bold; }
-        .diff-neg { color: #2e7d32; font-weight: bold; }
-        .footer { margin-top: 20px; font-size: 12px; color: #999; text-align: center; }
+        :root { --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --sub: #64748b; --border: #e2e8f0; 
+                --buy: #ef4444; --buy-light: #fee2e2; --sell: #10b981; --sell-light: #d1fae5; 
+                --drift: #94a3b8; --weight-bg: #e0e7ff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+               max-width: 950px; margin: 0 auto; padding: 20px; color: var(--text); background: var(--bg); }
+        .card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        h2 { margin-top: 0; border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+        th { text-align: center; padding: 12px 8px; font-weight: 600; color: var(--sub); border-bottom: 2px solid var(--border); }
+        th:first-child, td:first-child { text-align: left; }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--border); text-align: center; vertical-align: middle; }
+        
+        /* 标的名称列 */
+        .stock-name { font-weight: 600; font-size: 15px; }
+        .stock-code { font-size: 12px; color: var(--sub); margin-top: 2px; display: block; }
+        
+        /* 正负向柱状图容器 */
+        .dv-bar-container { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 140px; margin: 0 auto; }
+        .dv-left, .dv-right { flex: 1; display: flex; height: 16px; align-items: center; }
+        .dv-left { justify-content: flex-end; padding-right: 4px; border-right: 1px solid #cbd5e1; }
+        .dv-right { justify-content: flex-start; padding-left: 4px; border-left: 1px solid #cbd5e1; margin-left: -1px; }
+        
+        /* 柱子本体 */
+        .bar-sell { height: 12px; background: var(--sell); border-radius: 2px 0 0 2px; }
+        .bar-buy { height: 12px; background: var(--buy); border-radius: 0 2px 2px 0; }
+        .bar-drift { height: 6px; background: var(--drift); border-radius: 2px; opacity: 0.3; }
+        
+        /* 数据标签 */
+        .val-buy { color: var(--buy); font-weight: bold; }
+        .val-sell { color: var(--sell); font-weight: bold; }
+        .val-drift { color: var(--sub); font-size: 12px; }
+        
+        /* 仓位水位线 */
+        .weight-cell { position: relative; text-align: right !important; padding-right: 15px !important; font-weight: bold; font-family: monospace; font-size: 15px; }
+        .weight-bg { position: absolute; left: 0; top: 10%; height: 80%; background: var(--weight-bg); z-index: 0; border-radius: 4px; opacity: 0.6; }
+        .weight-text { position: relative; z-index: 1; }
+        
+        /* 弱化未操作的行 */
+        .row-passive { opacity: 0.6; filter: grayscale(50%); transition: all 0.2s; }
+        .row-passive:hover { opacity: 1; filter: grayscale(0%); background: #f8fafc; }
+        
+        .footer { text-align: center; font-size: 12px; color: var(--sub); margin-top: 20px; }
     </style>
     </head>
     <body>
-        <h2>📅 日报 (2026-02-14)</h2>
-    <h3>⚡ 变动明细</h3><table><thead><tr><th>状态</th><th>股票</th><th>变动</th><th>现仓</th></tr></thead><tbody>
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>软银</b><br><span style="color:#999;font-size:12px">SFTBY</span></td>
-                <td class="diff-neg">-0.3%</td>
-                <td>4.5%</td>
+        <div class="card">
+            <h2>🎯 真实调仓 X光机 (2026-02-14)</h2>
+            <p style="font-size:13px; color:var(--sub); margin-bottom:20px;">
+                * 图形化剥离市场波动。<b>彩色粗条</b>代表博主真实交易，向右(红)为买，向左(绿)为卖。
+            </p>
+    
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">标的</th>
+                        <th style="width: 20%;">🌊 被动漂移 (受股价影响)</th>
+                        <th style="width: 35%;">⭐ 真实主动动作 (剔除涨跌)</th>
+                        <th style="width: 20%; text-align: right; padding-right: 15px;">最新仓位</th>
+                    </tr>
+                </thead>
+                <tbody>
+        
+            <tr class="">
+                <td>
+                    <span class="stock-name">软银</span>
+                    <span class="stock-code">SFTBY</span>
+                </td>
+                <td><div class="dv-bar-container"><div class="dv-left"><div class="bar-drift" style="width:100.0%; background:var(--sell);"></div></div><div class="dv-right"></div></div><div class="val-drift">-0.27%</div></td>
+                <td>
+                <div class="dv-bar-container">
+                    <div class="dv-left"></div>
+                    <div class="dv-right"><div class="bar-buy" style="width: 100.0%;"></div></div>
+                </div>
+                <div class="val-buy">+0.27%</div>
+                </td>
+                <td class="weight-cell">
+                    <div class="weight-bg" style="width: 4.5%;"></div>
+                    <span class="weight-text">4.50%</span>
+                </td>
             </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>紫金矿业</b><br><span style="color:#999;font-size:12px">02899</span></td>
-                <td class="diff-neg">-0.2%</td>
-                <td>2.5%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>心动公司</b><br><span style="color:#999;font-size:12px">02400</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>6.3%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>美团-W</b><br><span style="color:#999;font-size:12px">03690</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>6.3%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>紫金矿业</b><br><span style="color:#999;font-size:12px">601899</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>2.6%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>百度集团-SW</b><br><span style="color:#999;font-size:12px">09888</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>2.4%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>六九一二</b><br><span style="color:#999;font-size:12px">301592</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>2.6%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>杰瑞股份</b><br><span style="color:#999;font-size:12px">002353</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>2.0%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>东方电气</b><br><span style="color:#999;font-size:12px">600875</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>2.5%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag sell">减仓</span></td>
-                <td><b>中国海洋石油</b><br><span style="color:#999;font-size:12px">00883</span></td>
-                <td class="diff-neg">-0.1%</td>
-                <td>3.6%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>梦百合</b><br><span style="color:#999;font-size:12px">603313</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>1.0%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>Circle Internet Group, Inc.</b><br><span style="color:#999;font-size:12px">CRCL</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>0.7%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>炬芯科技</b><br><span style="color:#999;font-size:12px">688049</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>1.9%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>大麦娱乐</b><br><span style="color:#999;font-size:12px">01060</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>1.9%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>亚马逊</b><br><span style="color:#999;font-size:12px">AMZN</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>1.9%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>腾讯控股</b><br><span style="color:#999;font-size:12px">00700</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>4.8%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>安踏体育</b><br><span style="color:#999;font-size:12px">02020</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>2.8%</td>
-            </tr>
-            
-            <tr>
-                <td><span class="tag buy">加仓</span></td>
-                <td><b>PDD Holdings Inc. American Depositary Shares</b><br><span style="color:#999;font-size:12px">PDD</span></td>
-                <td class="diff-pos">+0.1%</td>
-                <td>4.5%</td>
-            </tr>
-            </tbody></table><h3>📊 最新持仓</h3><table><thead><tr><th>代码</th><th>名称</th><th>仓位</th></tr></thead><tbody><tr><td>09992</td><td>泡泡玛特</td><td>8.2%</td></tr><tr><td>02400</td><td>心动公司</td><td>6.3%</td></tr><tr><td>03690</td><td>美团-W</td><td>6.3%</td></tr><tr><td>600036</td><td>招商银行</td><td>5.6%</td></tr><tr><td>02015</td><td>理想汽车-W</td><td>5.2%</td></tr><tr><td>00700</td><td>腾讯控股</td><td>4.8%</td></tr><tr><td>SFTBY</td><td>软银</td><td>4.5%</td></tr><tr><td>PDD</td><td>PDD Holdings Inc. American Depositary Shares</td><td>4.5%</td></tr><tr><td>002986</td><td>宇新股份</td><td>3.9%</td></tr><tr><td>688608</td><td>恒玄科技</td><td>3.8%</td></tr><tr><td>00883</td><td>中国海洋石油</td><td>3.6%</td></tr><tr><td>02020</td><td>安踏体育</td><td>2.8%</td></tr><tr><td>601899</td><td>紫金矿业</td><td>2.6%</td></tr><tr><td>301592</td><td>六九一二</td><td>2.6%</td></tr><tr><td>02899</td><td>紫金矿业</td><td>2.5%</td></tr><tr><td>600875</td><td>东方电气</td><td>2.5%</td></tr><tr><td>09888</td><td>百度集团-SW</td><td>2.4%</td></tr><tr><td>09626</td><td>哔哩哔哩-W</td><td>2.1%</td></tr><tr><td>002353</td><td>杰瑞股份</td><td>2.0%</td></tr><tr><td>01060</td><td>大麦娱乐</td><td>1.9%</td></tr><tr><td>688049</td><td>炬芯科技</td><td>1.9%</td></tr><tr><td>AMZN</td><td>亚马逊</td><td>1.9%</td></tr><tr><td>02338</td><td>潍柴动力</td><td>1.8%</td></tr><tr><td>TSM</td><td>Taiwan Semiconductor Manufacturing Co. Ltd. ADR</td><td>1.8%</td></tr><tr><td>PONY</td><td>pony</td><td>1.6%</td></tr><tr><td>000333</td><td>美的集团</td><td>1.6%</td></tr><tr><td>01072</td><td>东方电气</td><td>1.5%</td></tr><tr><td>09961</td><td>携程集团-S</td><td>1.3%</td></tr><tr><td>01024</td><td>快手-W</td><td>1.1%</td></tr><tr><td>603319</td><td>美湖股份</td><td>1.0%</td></tr><tr><td>LI</td><td>Li Auto Inc.</td><td>1.0%</td></tr><tr><td>603313</td><td>梦百合</td><td>1.0%</td></tr><tr><td>01918</td><td>融创中国</td><td>0.9%</td></tr><tr><td>CRCL</td><td>Circle Internet Group, Inc.</td><td>0.7%</td></tr><tr><td>00434</td><td>博雅互动</td><td>0.7%</td></tr><tr><td>ORCL</td><td>Oracle Corporation</td><td>0.4%</td></tr><tr><td>SBET</td><td>sbet</td><td>0.4%</td></tr><tr><td>QCOM</td><td>Qualcomm Inc.</td><td>0.4%</td></tr></tbody></table><div class='footer'>更新时间: 2026-02-14 01:06:15</div></body></html>
+            </tbody></table></div><div class='card'><h2>📊 完整大盘阵型</h2><table><thead><tr><th>标的</th><th style='text-align:right; padding-right:15px;'>总配比</th></tr></thead><tbody>
+        <tr>
+            <td><b>泡泡玛特</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">09992</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 8.2%;"></div>
+                <span class="weight-text">8.2%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>心动公司</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">02400</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 6.3%;"></div>
+                <span class="weight-text">6.3%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>美团-W</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">03690</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 6.3%;"></div>
+                <span class="weight-text">6.3%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>招商银行</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">600036</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 5.6%;"></div>
+                <span class="weight-text">5.6%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>理想汽车-W</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">02015</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 5.2%;"></div>
+                <span class="weight-text">5.2%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>腾讯控股</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">00700</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 4.8%;"></div>
+                <span class="weight-text">4.8%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>软银</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">SFTBY</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 4.5%;"></div>
+                <span class="weight-text">4.5%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>PDD Holdings Inc. American Depositary Shares</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">PDD</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 4.5%;"></div>
+                <span class="weight-text">4.5%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>宇新股份</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">002986</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 3.9%;"></div>
+                <span class="weight-text">3.9%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>恒玄科技</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">688608</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 3.8%;"></div>
+                <span class="weight-text">3.8%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>中国海洋石油</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">00883</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 3.6%;"></div>
+                <span class="weight-text">3.6%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>安踏体育</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">02020</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.8%;"></div>
+                <span class="weight-text">2.8%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>紫金矿业</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">601899</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.6%;"></div>
+                <span class="weight-text">2.6%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>六九一二</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">301592</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.6%;"></div>
+                <span class="weight-text">2.6%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>紫金矿业</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">02899</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.5%;"></div>
+                <span class="weight-text">2.5%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>东方电气</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">600875</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.5%;"></div>
+                <span class="weight-text">2.5%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>百度集团-SW</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">09888</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.4%;"></div>
+                <span class="weight-text">2.4%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>哔哩哔哩-W</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">09626</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.1%;"></div>
+                <span class="weight-text">2.1%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>杰瑞股份</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">002353</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 2.0%;"></div>
+                <span class="weight-text">2.0%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>大麦娱乐</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">01060</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.9%;"></div>
+                <span class="weight-text">1.9%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>炬芯科技</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">688049</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.9%;"></div>
+                <span class="weight-text">1.9%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>亚马逊</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">AMZN</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.9%;"></div>
+                <span class="weight-text">1.9%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>潍柴动力</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">02338</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.8%;"></div>
+                <span class="weight-text">1.8%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>Taiwan Semiconductor Manufacturing Co. Ltd. ADR</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">TSM</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.8%;"></div>
+                <span class="weight-text">1.8%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>pony</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">PONY</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.6%;"></div>
+                <span class="weight-text">1.6%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>美的集团</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">000333</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.6%;"></div>
+                <span class="weight-text">1.6%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>东方电气</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">01072</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.5%;"></div>
+                <span class="weight-text">1.5%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>携程集团-S</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">09961</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.3%;"></div>
+                <span class="weight-text">1.3%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>快手-W</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">01024</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.1%;"></div>
+                <span class="weight-text">1.1%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>美湖股份</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">603319</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.0%;"></div>
+                <span class="weight-text">1.0%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>Li Auto Inc.</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">LI</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.0%;"></div>
+                <span class="weight-text">1.0%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>梦百合</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">603313</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 1.0%;"></div>
+                <span class="weight-text">1.0%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>融创中国</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">01918</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 0.9%;"></div>
+                <span class="weight-text">0.9%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>Circle Internet Group, Inc.</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">CRCL</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 0.7%;"></div>
+                <span class="weight-text">0.7%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>博雅互动</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">00434</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 0.7%;"></div>
+                <span class="weight-text">0.7%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>Oracle Corporation</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">ORCL</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 0.4%;"></div>
+                <span class="weight-text">0.4%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>sbet</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">SBET</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 0.4%;"></div>
+                <span class="weight-text">0.4%</span>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><b>Qualcomm Inc.</b> <span style="color:#94a3b8;font-size:12px;margin-left:8px;">QCOM</span></td>
+            <td class="weight-cell">
+                <div class="weight-bg" style="width: 0.4%;"></div>
+                <span class="weight-text">0.4%</span>
+            </td>
+        </tr>
+        </tbody></table></div><div class='footer'>🤖 量化引擎更新时间: 2026-02-14 12:48:33</div></body></html>
