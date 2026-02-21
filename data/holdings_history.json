@@ -2651,5 +2651,197 @@
       "name": "Qualcomm Inc.",
       "share": 0.4
     }
+  ],
+  "2026-02-21": [
+    {
+      "code": "09992",
+      "name": "泡泡玛特",
+      "share": 8.1
+    },
+    {
+      "code": "02400",
+      "name": "心动公司",
+      "share": 7.0
+    },
+    {
+      "code": "03690",
+      "name": "美团-W",
+      "share": 6.2
+    },
+    {
+      "code": "600036",
+      "name": "招商银行",
+      "share": 5.6
+    },
+    {
+      "code": "02015",
+      "name": "理想汽车-W",
+      "share": 5.0
+    },
+    {
+      "code": "00700",
+      "name": "腾讯控股",
+      "share": 4.7
+    },
+    {
+      "code": "PDD",
+      "name": "PDD Holdings Inc. American Depositary Shares",
+      "share": 4.7
+    },
+    {
+      "code": "SFTBY",
+      "name": "软银",
+      "share": 4.3
+    },
+    {
+      "code": "002986",
+      "name": "宇新股份",
+      "share": 3.9
+    },
+    {
+      "code": "00883",
+      "name": "中国海洋石油",
+      "share": 3.9
+    },
+    {
+      "code": "688608",
+      "name": "恒玄科技",
+      "share": 3.8
+    },
+    {
+      "code": "02020",
+      "name": "安踏体育",
+      "share": 2.8
+    },
+    {
+      "code": "601899",
+      "name": "紫金矿业",
+      "share": 2.6
+    },
+    {
+      "code": "301592",
+      "name": "六九一二",
+      "share": 2.6
+    },
+    {
+      "code": "02899",
+      "name": "紫金矿业",
+      "share": 2.6
+    },
+    {
+      "code": "600875",
+      "name": "东方电气",
+      "share": 2.5
+    },
+    {
+      "code": "09888",
+      "name": "百度集团-SW",
+      "share": 2.3
+    },
+    {
+      "code": "002353",
+      "name": "杰瑞股份",
+      "share": 2.0
+    },
+    {
+      "code": "09626",
+      "name": "哔哩哔哩-W",
+      "share": 2.0
+    },
+    {
+      "code": "AMZN",
+      "name": "亚马逊",
+      "share": 2.0
+    },
+    {
+      "code": "02338",
+      "name": "潍柴动力",
+      "share": 1.9
+    },
+    {
+      "code": "688049",
+      "name": "炬芯科技",
+      "share": 1.9
+    },
+    {
+      "code": "TSM",
+      "name": "Taiwan Semiconductor Manufacturing Co. Ltd. ADR",
+      "share": 1.8
+    },
+    {
+      "code": "01060",
+      "name": "大麦娱乐",
+      "share": 1.7
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "share": 1.6
+    },
+    {
+      "code": "PONY",
+      "name": "pony",
+      "share": 1.6
+    },
+    {
+      "code": "01072",
+      "name": "东方电气",
+      "share": 1.5
+    },
+    {
+      "code": "09961",
+      "name": "携程集团-S",
+      "share": 1.2
+    },
+    {
+      "code": "01024",
+      "name": "快手-W",
+      "share": 1.1
+    },
+    {
+      "code": "603319",
+      "name": "美湖股份",
+      "share": 1.0
+    },
+    {
+      "code": "LI",
+      "name": "Li Auto Inc.",
+      "share": 1.0
+    },
+    {
+      "code": "603313",
+      "name": "梦百合",
+      "share": 1.0
+    },
+    {
+      "code": "01918",
+      "name": "融创中国",
+      "share": 1.0
+    },
+    {
+      "code": "CRCL",
+      "name": "Circle Internet Group, Inc.",
+      "share": 0.7
+    },
+    {
+      "code": "00434",
+      "name": "博雅互动",
+      "share": 0.7
+    },
+    {
+      "code": "QCOM",
+      "name": "Qualcomm Inc.",
+      "share": 0.4
+    },
+    {
+      "code": "SBET",
+      "name": "sbet",
+      "share": 0.4
+    },
+    {
+      "code": "ORCL",
+      "name": "Oracle Corporation",
+      "share": 0.4
+    }
   ]
 }
