@@ -25342,5 +25342,152 @@
       "name": "sbet",
       "share": 0.3
     }
+  ],
+  "2026-07-06": [
+    {
+      "code": "00700",
+      "name": "腾讯控股",
+      "share": 8.5
+    },
+    {
+      "code": "02400",
+      "name": "心动公司",
+      "share": 8.2
+    },
+    {
+      "code": "09992",
+      "name": "泡泡玛特",
+      "share": 8.0
+    },
+    {
+      "code": "03690",
+      "name": "美团-W",
+      "share": 7.7
+    },
+    {
+      "code": "600036",
+      "name": "招商银行",
+      "share": 6.6
+    },
+    {
+      "code": "688608",
+      "name": "恒玄科技",
+      "share": 5.4
+    },
+    {
+      "code": "PDD",
+      "name": "PDD Holdings Inc. American Depositary Shares",
+      "share": 4.0
+    },
+    {
+      "code": "02015",
+      "name": "理想汽车-W",
+      "share": 3.7
+    },
+    {
+      "code": "002986",
+      "name": "宇新股份",
+      "share": 3.7
+    },
+    {
+      "code": "601899",
+      "name": "紫金矿业",
+      "share": 3.5
+    },
+    {
+      "code": "02020",
+      "name": "安踏体育",
+      "share": 3.1
+    },
+    {
+      "code": "002353",
+      "name": "杰瑞股份",
+      "share": 3.1
+    },
+    {
+      "code": "301592",
+      "name": "六九一二",
+      "share": 2.5
+    },
+    {
+      "code": "09961",
+      "name": "携程集团-S",
+      "share": 2.1
+    },
+    {
+      "code": "00883",
+      "name": "中国海洋石油",
+      "share": 2.1
+    },
+    {
+      "code": "02899",
+      "name": "紫金矿业",
+      "share": 2.0
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "share": 1.6
+    },
+    {
+      "code": "01060",
+      "name": "大麦娱乐",
+      "share": 1.6
+    },
+    {
+      "code": "02423",
+      "name": "贝壳-W",
+      "share": 1.4
+    },
+    {
+      "code": "000799",
+      "name": "酒鬼酒",
+      "share": 1.1
+    },
+    {
+      "code": "00434",
+      "name": "博雅互动",
+      "share": 1.1
+    },
+    {
+      "code": "002568",
+      "name": "百润股份",
+      "share": 1.0
+    },
+    {
+      "code": "CRCL",
+      "name": "Circle Internet Group, Inc.",
+      "share": 0.8
+    },
+    {
+      "code": "000408",
+      "name": "藏格矿业",
+      "share": 0.7
+    },
+    {
+      "code": "000807",
+      "name": "云铝股份",
+      "share": 0.6
+    },
+    {
+      "code": "000933",
+      "name": "神火股份",
+      "share": 0.6
+    },
+    {
+      "code": "601225",
+      "name": "陕西煤业",
+      "share": 0.6
+    },
+    {
+      "code": "01918",
+      "name": "融创中国",
+      "share": 0.5
+    },
+    {
+      "code": "SBET",
+      "name": "sbet",
+      "share": 0.3
+    }
   ]
 }
