@@ -27413,5 +27413,17 @@
       "name": "sbet",
       "share": 0.3
     }
+  ],
+  "2026-08-04": [
+    {
+      "code": "距止损 已超",
+      "name": "Unknown",
+      "share": 15.0
+    },
+    {
+      "code": "距止损 1.4%",
+      "name": "Unknown",
+      "share": 11.0
+    }
   ]
 }
