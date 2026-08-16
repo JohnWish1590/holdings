@@ -27517,5 +27517,27 @@
       "name": "Unknown",
       "share": 11.0
     }
+  ],
+  "2026-08-16": [
+    {
+      "code": "距止损 1.9%",
+      "name": "Unknown",
+      "share": 15.0
+    },
+    {
+      "code": "距止损 已超",
+      "name": "Unknown",
+      "share": 9.0
+    },
+    {
+      "code": "距止损 0.8%",
+      "name": "Unknown",
+      "share": 9.0
+    },
+    {
+      "code": "距止损 2.3%",
+      "name": "Unknown",
+      "share": 9.0
+    }
   ]
 }
