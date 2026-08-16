@@ -9,7 +9,8 @@ from playwright.sync_api import sync_playwright
 # === 配置区域 ===
 URL_HOME = "https://petermoportfolio.com/"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+# 数据文件与网页同源放在 docs/data，便于 GitHub Pages 直接 fetch
+DATA_DIR = os.path.join(BASE_DIR, "docs", "data")
 HOLDINGS_FILE = os.path.join(DATA_DIR, "holdings_history.json")
 LATEST_HTML = os.path.join(BASE_DIR, "docs", "index.html")
 
