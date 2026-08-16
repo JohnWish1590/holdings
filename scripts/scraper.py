@@ -1,6 +1,5 @@
 import json
 import os
-import requests
 import re
 from datetime import datetime
 import pandas as pd
@@ -18,18 +17,26 @@ os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(LATEST_HTML), exist_ok=True)
 
 def format_ticker_for_yf(code):
-    """将常见的股票代码转换为 yfinance 可识别的格式"""
+    """将持仓历史里的原始代码转换为 yfinance 可识别的格式。
+
+    持仓历史中代码存的是无后缀纯数字：
+      - 港股 5 位（如 00700、09992）→ 去前导零补 4 位 + .HK → 0700.HK
+      - A股  6 位（如 600036、300750）→ 6 开头 .SS，其余 .SZ
+    若已带 .HK 后缀则兼容处理；纯字母（美股 ticker）原样返回。
+    """
     code = code.upper().strip()
-    # 港股处理 (例如 0700.HK)
+    # 已带 .HK 后缀：补齐为 4 位
     if code.endswith('.HK'):
-        # yfinance 港股通常是 0700.HK，如果只有 700.HK 需要补齐 4 位数字
-        parts = code.split('.')
-        parts[0] = parts[0].zfill(4)
-        return f"{parts[0]}.HK"
-    # A股处理 (简单正则推断: 6开头沪市.SS，0或3开头深市.SZ)
-    if code.isdigit() and len(code) == 6:
-        if code.startswith('6'): return f"{code}.SS"
-        else: return f"{code}.SZ"
+        stem = code[:-3].zfill(4)
+        return f"{stem}.HK"
+    # 纯数字
+    if code.isdigit():
+        if len(code) == 6:
+            return f"{code}.SS" if code.startswith('6') else f"{code}.SZ"
+        if len(code) == 5:  # 港股 5 位代码（带前导零）
+            return f"{code.lstrip('0').zfill(4)}.HK"
+        return code  # 其它数字格式容错原样返回
+    # 纯字母：美股 ticker，原样返回
     return code
 
 def get_daily_return(code):
@@ -357,60 +364,151 @@ def generate_html_report(date_str, today_data, changes):
     html += f"</tbody></table></div><div class='footer'>🤖 量化引擎更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div></body></html>"
     return html
 
-def send_telegram(message, file_path=None):
-    token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-    if not token or not chat_id: return
+def all_codes(history):
+    """返回历史中出现过的所有标的代码集合。"""
+    s = set()
+    for items in history.values():
+        for it in items:
+            s.add(it["code"])
+    return s
 
-    url_msg = f"https://api.telegram.org/bot{token}/sendMessage"
-    try:
-        requests.post(url_msg, json={"chat_id": chat_id, "text": message, "parse_mode": "HTML"})
-    except: pass
 
-    if file_path and os.path.exists(file_path):
-        url_doc = f"https://api.telegram.org/bot{token}/sendDocument"
+def _daily_return_from_price(price_history, code, date):
+    """从 price_history 取某 code 在 date 相对前一交易日的收益率（小数）。"""
+    series = price_history.get(code, {})
+    dates = sorted(series.keys())
+    if date not in dates:
+        return 0.0
+    i = dates.index(date)
+    if i == 0:
+        return 0.0
+    prev, cur = series[dates[i - 1]], series[date]
+    if not prev or not cur:
+        return 0.0
+    return (cur - prev) / prev
+
+
+def generate_events(history, price_history=None):
+    """跨所有相邻日期，剥离市场波动后提取博主的主动调仓事件。
+
+    提供 price_history 时用真实日回报做 X 光；否则降级为单纯仓位差分。
+    返回事件列表，按日期升序，单日多条按主动调仓绝对值降序。
+    """
+    dates = sorted(history.keys())
+    events = []
+    if len(dates) < 2:
+        return events
+    for i in range(1, len(dates)):
+        d_today, d_yes = dates[i], dates[i - 1]
+        tmap = {x["code"]: x for x in history[d_today]}
+        ymap = {x["code"]: x for x in history[d_yes]}
+        codes = set(tmap) | set(ymap)
+        # 组合理论收益率（用于剥离市场波动）
+        port_ret = 0.0
+        if price_history:
+            for c in ymap:
+                w = ymap[c]["share"] / 100.0
+                port_ret += w * _daily_return_from_price(price_history, c, d_today)
+        for c in codes:
+            now = tmap.get(c)
+            old = ymap.get(c)
+            name = (now or old)["name"]
+            now_sh = now["share"] if now else 0.0
+            old_sh = old["share"] if old else 0.0
+            diff = now_sh - old_sh
+            if abs(diff) < 0.3:
+                continue  # 噪声忽略
+            r_i = _daily_return_from_price(price_history, c, d_today) if price_history else 0.0
+            exp = old_sh * (1 + r_i) / (1 + port_ret) if (old_sh > 0 and price_history) else old_sh
+            active = now_sh - exp
+            if old_sh == 0:
+                typ = "new"
+            elif now_sh == 0:
+                typ = "sold"
+            elif active > 0.15:
+                typ = "buy"
+            elif active < -0.15:
+                typ = "sell"
+            else:
+                typ = "drift"
+            if typ == "drift":
+                continue
+            events.append({
+                "date": d_today, "code": c, "name": name,
+                "type": typ, "active_diff": round(active, 3),
+                "total_diff": round(diff, 3),
+                "now": round(now_sh, 3), "old": round(old_sh, 3),
+            })
+    events.sort(key=lambda e: (e["date"], -abs(e["active_diff"])))
+    return events
+
+
+def save_events(events, path=None):
+    path = path or os.path.join(DATA_DIR, "events.json")
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(events, f, ensure_ascii=False, indent=2)
+
+
+def generate_price_history(history, path=None):
+    """用 yfinance 拉取所有出现过的标的的历史日线，增量更新到 price_history.json。
+
+    返回 {code: {date: close}}。联网失败保留已有数据（可能为空）。
+    """
+    path = path or os.path.join(DATA_DIR, "price_history.json")
+    existing = {}
+    if os.path.exists(path):
         try:
-            with open(file_path, 'rb') as f:
-                requests.post(url_doc, data={"chat_id": chat_id, "caption": "📈 深度测算报表 (点开查看剥离数据)"}, files={"document": f})
-        except: pass
+            existing = json.load(open(path, encoding='utf-8'))
+        except Exception:
+            existing = {}
+    codes = sorted(all_codes(history))
+    start = min(history.keys())
+    out = dict(existing)
+    for code in codes:
+        yf_code = format_ticker_for_yf(code)
+        try:
+            df = yf.Ticker(yf_code).history(start=start)
+            series = {}
+            for idx, row in df.iterrows():
+                d = idx.strftime("%Y-%m-%d")
+                c = float(row["Close"])
+                if c:
+                    series[d] = round(c, 4)
+            if series:
+                out[code] = series
+                print(f"  √ {code} ({yf_code}): {len(series)} 个交易日")
+        except Exception as e:
+            print(f"  × {code} ({yf_code}) 行情拉取失败: {e}")
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+    return out
+
 
 if __name__ == "__main__":
     today_str = datetime.now().strftime("%Y-%m-%d")
     current_holdings = get_holdings()
-    
+
     if not current_holdings:
         exit(1)
-        
+
     history = load_history()
     last_date = sorted(history.keys())[-1] if history else None
     last_holdings = history[last_date] if last_date else []
-    
-    changes, is_changed = compare_holdings(current_holdings, last_holdings)
-    html_report = generate_html_report(today_str, current_holdings, changes)
-    
+
     history[today_str] = current_holdings
     save_history(history)
-    with open(LATEST_HTML, 'w', encoding='utf-8') as f:
-        f.write(html_report)
-    
-    # 过滤出真正有主动买卖动作的标的（排除仅仅是被动漂移的）
-    active_changes = [c for c in changes if c['type'] in ['buy', 'sell', 'new', 'sold']]
-    
-    summary = f"<b>🤖 PeterPortfolio 深度监控报告</b>\n日期: {today_str}\n\n"
-    
-    if active_changes:
-        summary += f"🚨 <b>核心诊断：发现 {len(active_changes)} 笔实质性调仓</b>\n"
-        summary += "已通过算法剔除股价自然涨跌干扰。\n\n"
-        for c in active_changes[:3]: # Telegram预览最多显示3个最关键的动作
-            action = "加仓" if c['active_diff'] > 0 else "减仓"
-            if c['type'] == 'new': action = "建仓"
-            if c['type'] == 'sold': action = "清仓"
-            summary += f"▪️ {c['name']}: {action} 约 {abs(c['active_diff']):.2f}%\n"
-        if len(active_changes) > 3:
-            summary += "...\n\n"
-        summary += "👇 点击下方报表查看所有真实买卖明细"
-    else:
-        summary += "✅ <b>核心诊断：未见实质性动作</b>\n今日仓位变化主要为市场波动的自然漂移，博主并未进行明显的主动买卖。\n👇 点击文件查看详细数据"
 
-    print("正在推送 Telegram...")
-    send_telegram(summary, LATEST_HTML)
+    # 行情历史（联网拉取，失败则保留已有/为空）
+    print(">>> 正在更新行情历史（yfinance）...")
+    price_history = generate_price_history(history)
+
+    # 调仓事件（有行情则用 X 光剥离波动，否则降级为仓位差分）
+    events = generate_events(history, price_history or None)
+    save_events(events)
+
+    # 今日诊断摘要（不再推送 Telegram，仅打印）
+    changes, is_changed = compare_holdings(current_holdings, last_holdings)
+    active = [c for c in changes if c['type'] in ('buy', 'sell', 'new', 'sold')]
+    print(f">>> 完成：{len(current_holdings)} 只持仓，"
+          f"今日 {len(active)} 笔实质调仓，历史调仓事件共 {len(events)} 条。")
+    print(">>> 网页看板已就绪：docs/index.html（数据每日自动更新后刷新即可）。")

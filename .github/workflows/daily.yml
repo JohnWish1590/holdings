@@ -26,15 +26,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # 新增了 requests 库，用于发送 Telegram 消息
-          pip install pandas openpyxl playwright python-docx requests yfinance
+          pip install pandas openpyxl playwright python-docx yfinance
           playwright install chromium
 
       - name: Run scraper script
-        env:
-          # === 关键修改：注入 Telegram 密钥 ===
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python scripts/scraper.py
 
