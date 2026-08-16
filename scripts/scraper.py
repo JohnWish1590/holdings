@@ -47,7 +47,39 @@ def get_daily_return(code):
         print(f"无法获取 {code} ({yf_code}) 的行情数据: {e}")
     return 0.0 # 获取失败则默认没有涨跌幅（即不剥离）
 
+def _safe_text(locator, default=""):
+    """安全读取 Playwright locator 的文本，失败返回 default。"""
+    try:
+        return locator.inner_text().strip()
+    except Exception:
+        return default
+
+def _looks_like_code(code):
+    """判断抓取到的文本是否像股票代码，借此过滤 TradingDesk 等干扰文字。"""
+    if not code:
+        return False
+    if len(code) > 8:
+        return False
+    if any(k in code for k in ["止损", "止盈", "·", "已超", "触发", "接近", "信号"]):
+        return False
+    return True
+
 def get_holdings():
+    """抓取 Peter 公开组合（petermoportfolio.com）的真实持仓列表。
+
+    站点改版后，页面上同时有两个用到 `text-muted-foreground` 的板块：
+      - HoldingsTable（持仓明细表，每行一个真实 ticker）
+      - TradingDesk（交易信号面板，渲染“距止损 X% / 已触发”等文字）
+    旧选择器 `div.text-xs.text-muted-foreground` 会把 TradingDesk 的“距止损 X%”
+    误当成股票代码，导致 2026-08-04 起数据全部串味（见仓库 README）。
+
+    修复要点：
+      1. 持仓数据经 tRPC 异步加载，必须等数据回来再抓，否则会抓到 0 条。
+         用 wait_for_function 等 ticker 数量明显多于 TradingDesk 的干扰项。
+      2. 用 `_looks_like_code()` 严格过滤掉“距止损 / 已触发”等干扰文字，
+         只保留真正的股票代码。
+      3. 按 code 去重，防止 TradingDesk 信号与 HoldingsTable 中同一只股票重复。
+    """
     print(">>> 正在启动抓取...")
     holdings = []
     with sync_playwright() as p:
@@ -55,27 +87,45 @@ def get_holdings():
         page = browser.new_page()
         try:
             page.goto(URL_HOME, timeout=60000)
+            # 等第一个含 text-muted-foreground 的元素出现
             page.wait_for_selector("div.text-muted-foreground", timeout=60000)
-            
+            # 关键：持仓数据异步加载，等 ticker 数量明显多于 TradingDesk 干扰项再抓
+            page.wait_for_function(
+                "document.querySelectorAll('div.text-xs.text-muted-foreground').length > 4",
+                timeout=60000,
+            )
+            page.wait_for_timeout(2000)  # 再给一点缓冲，确保渲染稳定
+
             elements = page.locator("div.text-xs.text-muted-foreground").all()
             for el in elements:
-                code = el.inner_text().strip()
-                if not code or len(code) > 8: continue
-                try: name = el.locator("xpath=..//span[contains(@class, 'font-semibold')]").inner_text()
-                except: name = "Unknown"
+                code = _safe_text(el)
+                if not _looks_like_code(code):
+                    continue  # 跳过 TradingDesk 的“距止损 X%”等干扰文字
+                try:
+                    name = el.locator(
+                        "xpath=..//span[contains(@class, 'font-semibold')]"
+                    ).inner_text().strip()
+                except Exception:
+                    name = "Unknown"
                 share = 0.0
                 try:
                     row_text = el.locator("xpath=../..").inner_text()
-                    match = re.search(r'(\d+\.?\d*)%', row_text)
-                    if match: share = float(match.group(1))
-                except: pass
-
+                    m = re.search(r'(\d+\.?\d*)%', row_text)
+                    if m:
+                        share = float(m.group(1))
+                except Exception:
+                    pass
                 holdings.append({"code": code, "name": name, "share": share})
         except Exception as e:
             print(f"抓取失败: {e}")
         browser.close()
-    
-    holdings.sort(key=lambda x: x['share'], reverse=True)
+
+    # 按 code 去重（TradingDesk 信号可能与 HoldingsTable 持仓中同一只股票重复）
+    dedup = {}
+    for h in holdings:
+        dedup.setdefault(h["code"], h)
+    holdings = list(dedup.values())
+    holdings.sort(key=lambda x: x["share"], reverse=True)
     return holdings
 
 def load_history():
