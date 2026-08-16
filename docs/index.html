@@ -3,71 +3,128 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Peter 持仓透视 · 动态看板</title>
+<title>Peter 持仓透视</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
   :root{
-    --bg:#f8fafc; --card:#ffffff; --text:#1e293b; --sub:#64748b;
-    --border:#e2e8f0; --accent:#6366f1; --buy:#ef4444; --sell:#10b981;
+    --bg:#f7f8fa; --card:#ffffff; --text:#0f172a; --sub:#64748b; --border:#e6e8ee;
+    --up:#e5484d; --up-bg:#fdf0f0; --down:#0f9d6c; --down-bg:#eaf7f1;
+    --accent:#4f46e5; --bar:#3b82f6; --bar-other:#c7cdd8;
   }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-       background:var(--bg);color:var(--text);}
-  .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px;}
-  header h1{margin:0 0 4px;font-size:24px;font-weight:700;}
-  header p{margin:0;color:var(--sub);font-size:13px;}
-  .meta{margin-top:10px;font-size:12px;color:var(--sub);}
-  .tabs{display:flex;gap:8px;margin:22px 0 18px;flex-wrap:wrap;}
-  .tab{border:1px solid var(--border);background:var(--card);color:var(--sub);
-       padding:9px 16px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:600;transition:.15s;}
-  .tab:hover{border-color:var(--accent);color:var(--accent);}
-  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-  .view{display:none;}
-  .view.active{display:block;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 18px 8px;
-        box-shadow:0 4px 10px -4px rgba(0,0,0,.06);}
-  .card h2{margin:0 0 4px;font-size:16px;}
-  .card .hint{margin:0 0 12px;font-size:12px;color:var(--sub);}
-  #chart-timeline,#chart-events,#chart-netvalue{width:100%;height:560px;}
-  footer{margin-top:28px;text-align:center;font-size:12px;color:var(--sub);}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+       background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;}
+  .num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum";}
+  .wrap{max-width:920px; margin:0 auto; padding:34px 20px 64px;}
+
+  header{padding:4px 0 26px;}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .logo{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;flex-shrink:0;}
+  .brand h1{margin:0; font-size:20px; font-weight:700; letter-spacing:-.2px;}
+  .brand .sub{margin:2px 0 0; font-size:13px; color:var(--sub);}
+  .updated{margin:14px 0 0; font-size:12px; color:var(--sub);}
+
+  .hero{margin-bottom:26px;}
+  .verdict{font-size:23px; font-weight:700; margin:0 0 6px; line-height:1.45; letter-spacing:-.2px;}
+  .verdict .up{color:var(--up);}
+  .verdict .down{color:var(--down);}
+  .hero .note{margin:0 0 20px; font-size:13px; color:var(--sub);}
+
+  .kpis{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
+  .kpi{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 18px;}
+  .kpi .label{font-size:13px; color:var(--sub); margin:0 0 6px;}
+  .kpi .value{font-size:28px; font-weight:700; margin:0; line-height:1.1;}
+
+  .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:18px;}
+  .card h2{margin:0 0 4px; font-size:16px; font-weight:700;}
+  .card .hint{margin:0 0 16px; font-size:12px; color:var(--sub); line-height:1.5;}
+
+  .trade{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 2px; border-bottom:1px solid var(--border); transition:background .12s;}
+  .trade:last-child{border-bottom:none;}
+  .trade:hover{background:#fafbfc;}
+  .trade .name{font-weight:600; font-size:14px;}
+  .trade .code{color:var(--sub); font-size:12px; margin-left:6px; font-weight:400;}
+  .tag{display:inline-block; font-size:12px; padding:3px 9px; border-radius:7px; font-weight:600; white-space:nowrap;}
+  .more{padding-top:12px; font-size:12px; color:var(--sub); text-align:center;}
+
+  .bar-row{margin-bottom:13px;}
+  .bar-row:last-child{margin-bottom:0;}
+  .bar-row .top{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; margin-bottom:5px;}
+  .bar-row .pct{color:var(--sub); font-size:13px;}
+  .bar-track{height:9px; background:#eef1f5; border-radius:5px; overflow:hidden;}
+  .bar-fill{height:9px; background:var(--bar); border-radius:5px; transition:width .4s ease;}
+
+  #netvalue{width:100%; height:400px;}
+
+  .timeline{position:relative; padding-left:24px;}
+  .timeline::before{content:""; position:absolute; left:7px; top:6px; bottom:6px; width:2px; background:var(--border);}
+  .event{position:relative; margin-bottom:16px;}
+  .event:last-child{margin-bottom:0;}
+  .event::before{content:""; position:absolute; left:-24px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--card); border:2px solid var(--sub);}
+  .event.up::before{border-color:var(--up);}
+  .event.down::before{border-color:var(--down);}
+  .event .meta{font-size:12px; color:var(--sub); margin:0 0 3px;}
+  .event .title{font-size:14px; font-weight:600;}
+
+  footer{text-align:center; font-size:12px; color:var(--sub); margin-top:30px; line-height:1.7;}
+
+  @media (max-width:640px){
+    .kpis{grid-template-columns:1fr 1fr;}
+    .verdict{font-size:20px;}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>📊 Peter 持仓透视</h1>
-    <p>每日自动抓取公开组合，剥离市场波动，透视真实调仓与净值轨迹。</p>
-    <div class="meta" id="meta">数据加载中…</div>
+    <div class="brand">
+      <div class="logo">P</div>
+      <div>
+        <h1>Peter 持仓透视</h1>
+        <p class="sub">每日自动追踪公开组合 · 剥离市场波动 · 只看真实调仓</p>
+      </div>
+    </div>
+    <p class="updated" id="updated">数据加载中…</p>
   </header>
-  <nav class="tabs">
-    <div class="tab active" data-view="timeline">仓位时间线</div>
-    <div class="tab" data-view="events">调仓事件流</div>
-    <div class="tab" data-view="netvalue">净值曲线</div>
-  </nav>
-  <main>
-    <section class="view active" id="view-timeline">
-      <div class="card">
-        <h2>仓位时间线（堆叠面积）</h2>
-        <p class="hint">每日各标的仓位占比，Top 12 单独列示，其余归入「其他」。可拖动下方滑块缩放时间区间。</p>
-        <div id="chart-timeline"></div>
-      </div>
-    </section>
-    <section class="view" id="view-events">
-      <div class="card">
-        <h2>调仓事件流（主动买卖）</h2>
-        <p class="hint">每个点代表一次主动调仓，纵轴为剥离涨跌后的真实仓位变动（%），点越大动作越大。红=买/建仓，绿=卖/清仓。</p>
-        <div id="chart-events"></div>
-      </div>
-    </section>
-    <section class="view" id="view-netvalue">
-      <div class="card">
-        <h2>净值曲线（归一化）</h2>
-        <p class="hint">各标的自最早可得日起按首日收盘价归一化为 100，便于跨市场（港股 / 美股 / A股）对比涨跌。</p>
-        <div id="chart-netvalue"></div>
-      </div>
-    </section>
-  </main>
-  <footer>数据来源：Peter 公开组合（每日定时抓取） · 行情：Yahoo Finance · 本页纯静态，数据每日自动更新</footer>
+
+  <section class="hero">
+    <p class="verdict" id="verdict">…</p>
+    <p class="note" id="note">…</p>
+    <div class="kpis">
+      <div class="kpi"><p class="label">加仓 / 建仓</p><p class="value num" id="kpi-buy" style="color:var(--up);">—</p></div>
+      <div class="kpi"><p class="label">减仓 / 清仓</p><p class="value num" id="kpi-sell" style="color:var(--down);">—</p></div>
+      <div class="kpi"><p class="label">当前持仓</p><p class="value num" id="kpi-total">—</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>最新调仓明细</h2>
+    <p class="hint">红 = 加仓 / 建仓，绿 = 减仓 / 清仓。已剔除股价涨跌造成的自然漂移，只保留博主真实动作。</p>
+    <div id="trades"></div>
+  </section>
+
+  <section class="card">
+    <h2>持仓分布</h2>
+    <p class="hint">最新快照的仓位占比，Top 6 单独列示，其余合并为「其他」。</p>
+    <div id="allocation"></div>
+  </section>
+
+  <section class="card">
+    <h2>净值曲线</h2>
+    <p class="hint">Top 8 重仓标的，按各自最早可得日归一化为 100，便于跨港股 / 美股 / A股对比涨跌。</p>
+    <div id="netvalue"></div>
+  </section>
+
+  <section class="card">
+    <h2>调仓时间轴</h2>
+    <p class="hint">历史主动调仓事件流，最近 30 笔。</p>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <footer>
+    数据来源：Peter 公开组合 · 行情：Yahoo Finance · 每日 08:00 自动更新<br>
+    调仓算法：主动调仓 = 实际仓位 − 预期仓位（剥离市场涨跌）
+  </footer>
 </div>
 <script src="app.js"></script>
 </body>
