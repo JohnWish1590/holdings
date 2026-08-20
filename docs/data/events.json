@@ -1761,16 +1761,6 @@
   },
   {
     "date": "2026-07-02",
-    "code": "000933",
-    "name": "神火股份",
-    "type": "new",
-    "active_diff": 0.6,
-    "total_diff": 0.6,
-    "now": 0.6,
-    "old": 0.0
-  },
-  {
-    "date": "2026-07-02",
     "code": "000807",
     "name": "云铝股份",
     "type": "new",
@@ -1783,6 +1773,16 @@
     "date": "2026-07-02",
     "code": "601225",
     "name": "陕西煤业",
+    "type": "new",
+    "active_diff": 0.6,
+    "total_diff": 0.6,
+    "now": 0.6,
+    "old": 0.0
+  },
+  {
+    "date": "2026-07-02",
+    "code": "000933",
+    "name": "神火股份",
     "type": "new",
     "active_diff": 0.6,
     "total_diff": 0.6,
@@ -1981,16 +1981,6 @@
   },
   {
     "date": "2026-07-11",
-    "code": "002353",
-    "name": "杰瑞股份",
-    "type": "sell",
-    "active_diff": -0.4,
-    "total_diff": -0.4,
-    "now": 2.6,
-    "old": 3.0
-  },
-  {
-    "date": "2026-07-11",
     "code": "01378",
     "name": "中国宏桥",
     "type": "buy",
@@ -1998,6 +1988,16 @@
     "total_diff": 0.4,
     "now": 0.9,
     "old": 0.5
+  },
+  {
+    "date": "2026-07-11",
+    "code": "002353",
+    "name": "杰瑞股份",
+    "type": "sell",
+    "active_diff": -0.4,
+    "total_diff": -0.4,
+    "now": 2.6,
+    "old": 3.0
   },
   {
     "date": "2026-07-14",
@@ -2091,6 +2091,16 @@
   },
   {
     "date": "2026-08-01",
+    "code": "000408",
+    "name": "藏格矿业",
+    "type": "sold",
+    "active_diff": -0.6,
+    "total_diff": -0.6,
+    "now": 0.0,
+    "old": 0.6
+  },
+  {
+    "date": "2026-08-01",
     "code": "688608",
     "name": "恒玄科技",
     "type": "sell",
@@ -2111,16 +2121,6 @@
   },
   {
     "date": "2026-08-01",
-    "code": "000408",
-    "name": "藏格矿业",
-    "type": "sold",
-    "active_diff": -0.6,
-    "total_diff": -0.6,
-    "now": 0.0,
-    "old": 0.6
-  },
-  {
-    "date": "2026-08-01",
     "code": "000807",
     "name": "云铝股份",
     "type": "buy",
@@ -2128,26 +2128,6 @@
     "total_diff": 0.5,
     "now": 1.7,
     "old": 1.2
-  },
-  {
-    "date": "2026-08-01",
-    "code": "09992",
-    "name": "泡泡玛特",
-    "type": "buy",
-    "active_diff": 0.4,
-    "total_diff": 0.4,
-    "now": 7.9,
-    "old": 7.5
-  },
-  {
-    "date": "2026-08-01",
-    "code": "002986",
-    "name": "宇新股份",
-    "type": "sell",
-    "active_diff": -0.4,
-    "total_diff": -0.4,
-    "now": 3.1,
-    "old": 3.5
   },
   {
     "date": "2026-08-01",
@@ -2167,6 +2147,26 @@
     "active_diff": 0.4,
     "total_diff": 0.4,
     "now": 3.9,
+    "old": 3.5
+  },
+  {
+    "date": "2026-08-01",
+    "code": "09992",
+    "name": "泡泡玛特",
+    "type": "buy",
+    "active_diff": 0.4,
+    "total_diff": 0.4,
+    "now": 7.9,
+    "old": 7.5
+  },
+  {
+    "date": "2026-08-01",
+    "code": "002986",
+    "name": "宇新股份",
+    "type": "sell",
+    "active_diff": -0.4,
+    "total_diff": -0.4,
+    "now": 3.1,
     "old": 3.5
   },
   {
@@ -2241,16 +2241,6 @@
   },
   {
     "date": "2026-08-16",
-    "code": "00700",
-    "name": "腾讯控股",
-    "type": "sell",
-    "active_diff": -0.5,
-    "total_diff": -0.5,
-    "now": 8.2,
-    "old": 8.7
-  },
-  {
-    "date": "2026-08-16",
     "code": "688608",
     "name": "恒玄科技",
     "type": "sell",
@@ -2258,6 +2248,16 @@
     "total_diff": -0.5,
     "now": 4.6,
     "old": 5.1
+  },
+  {
+    "date": "2026-08-16",
+    "code": "00700",
+    "name": "腾讯控股",
+    "type": "sell",
+    "active_diff": -0.5,
+    "total_diff": -0.5,
+    "now": 8.2,
+    "old": 8.7
   },
   {
     "date": "2026-08-16",
@@ -2314,7 +2314,7 @@
     "code": "600673",
     "name": "东阳光",
     "type": "sell",
-    "active_diff": -0.7,
+    "active_diff": -0.553,
     "total_diff": -0.7,
     "now": 2.2,
     "old": 2.9
@@ -2324,7 +2324,7 @@
     "code": "03690",
     "name": "美团-W",
     "type": "buy",
-    "active_diff": 0.5,
+    "active_diff": 0.371,
     "total_diff": 0.5,
     "now": 8.1,
     "old": 7.6
