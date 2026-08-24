@@ -1771,8 +1771,8 @@
   },
   {
     "date": "2026-07-02",
-    "code": "601225",
-    "name": "陕西煤业",
+    "code": "000807",
+    "name": "云铝股份",
     "type": "new",
     "active_diff": 0.6,
     "total_diff": 0.6,
@@ -1781,8 +1781,8 @@
   },
   {
     "date": "2026-07-02",
-    "code": "000807",
-    "name": "云铝股份",
+    "code": "601225",
+    "name": "陕西煤业",
     "type": "new",
     "active_diff": 0.6,
     "total_diff": 0.6,
@@ -2071,16 +2071,6 @@
   },
   {
     "date": "2026-08-01",
-    "code": "02400",
-    "name": "心动公司",
-    "type": "buy",
-    "active_diff": 0.7,
-    "total_diff": 0.7,
-    "now": 7.9,
-    "old": 7.2
-  },
-  {
-    "date": "2026-08-01",
     "code": "03690",
     "name": "美团-W",
     "type": "buy",
@@ -2091,13 +2081,13 @@
   },
   {
     "date": "2026-08-01",
-    "code": "688608",
-    "name": "恒玄科技",
-    "type": "sell",
-    "active_diff": -0.6,
-    "total_diff": -0.6,
-    "now": 5.1,
-    "old": 5.7
+    "code": "02400",
+    "name": "心动公司",
+    "type": "buy",
+    "active_diff": 0.7,
+    "total_diff": 0.7,
+    "now": 7.9,
+    "old": 7.2
   },
   {
     "date": "2026-08-01",
@@ -2121,6 +2111,16 @@
   },
   {
     "date": "2026-08-01",
+    "code": "688608",
+    "name": "恒玄科技",
+    "type": "sell",
+    "active_diff": -0.6,
+    "total_diff": -0.6,
+    "now": 5.1,
+    "old": 5.7
+  },
+  {
+    "date": "2026-08-01",
     "code": "000807",
     "name": "云铝股份",
     "type": "buy",
@@ -2141,13 +2141,13 @@
   },
   {
     "date": "2026-08-01",
-    "code": "002986",
-    "name": "宇新股份",
-    "type": "sell",
-    "active_diff": -0.4,
-    "total_diff": -0.4,
-    "now": 3.1,
-    "old": 3.5
+    "code": "601899",
+    "name": "紫金矿业",
+    "type": "buy",
+    "active_diff": 0.4,
+    "total_diff": 0.4,
+    "now": 3.6,
+    "old": 3.2
   },
   {
     "date": "2026-08-01",
@@ -2161,13 +2161,13 @@
   },
   {
     "date": "2026-08-01",
-    "code": "601899",
-    "name": "紫金矿业",
-    "type": "buy",
-    "active_diff": 0.4,
-    "total_diff": 0.4,
-    "now": 3.6,
-    "old": 3.2
+    "code": "002986",
+    "name": "宇新股份",
+    "type": "sell",
+    "active_diff": -0.4,
+    "total_diff": -0.4,
+    "now": 3.1,
+    "old": 3.5
   },
   {
     "date": "2026-08-01",
@@ -2261,16 +2261,6 @@
   },
   {
     "date": "2026-08-16",
-    "code": "02015",
-    "name": "理想汽车-W",
-    "type": "sell",
-    "active_diff": -0.4,
-    "total_diff": -0.4,
-    "now": 3.5,
-    "old": 3.9
-  },
-  {
-    "date": "2026-08-16",
     "code": "000807",
     "name": "云铝股份",
     "type": "sell",
@@ -2278,6 +2268,16 @@
     "total_diff": -0.4,
     "now": 1.3,
     "old": 1.7
+  },
+  {
+    "date": "2026-08-16",
+    "code": "02015",
+    "name": "理想汽车-W",
+    "type": "sell",
+    "active_diff": -0.4,
+    "total_diff": -0.4,
+    "now": 3.5,
+    "old": 3.9
   },
   {
     "date": "2026-08-16",
@@ -2341,6 +2341,16 @@
   },
   {
     "date": "2026-08-22",
+    "code": "00434",
+    "name": "博雅互动",
+    "type": "buy",
+    "active_diff": 0.5,
+    "total_diff": 0.5,
+    "now": 1.7,
+    "old": 1.2
+  },
+  {
+    "date": "2026-08-22",
     "code": "01024",
     "name": "快手-W",
     "type": "buy",
@@ -2358,16 +2368,6 @@
     "total_diff": 0.5,
     "now": 2.6,
     "old": 2.1
-  },
-  {
-    "date": "2026-08-22",
-    "code": "00434",
-    "name": "博雅互动",
-    "type": "buy",
-    "active_diff": 0.5,
-    "total_diff": 0.5,
-    "now": 1.7,
-    "old": 1.2
   },
   {
     "date": "2026-08-22",
