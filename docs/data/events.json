@@ -1761,8 +1761,8 @@
   },
   {
     "date": "2026-07-02",
-    "code": "000933",
-    "name": "神火股份",
+    "code": "601225",
+    "name": "陕西煤业",
     "type": "new",
     "active_diff": 0.6,
     "total_diff": 0.6,
@@ -1771,8 +1771,8 @@
   },
   {
     "date": "2026-07-02",
-    "code": "601225",
-    "name": "陕西煤业",
+    "code": "000933",
+    "name": "神火股份",
     "type": "new",
     "active_diff": 0.6,
     "total_diff": 0.6,
@@ -1981,16 +1981,6 @@
   },
   {
     "date": "2026-07-11",
-    "code": "002353",
-    "name": "杰瑞股份",
-    "type": "sell",
-    "active_diff": -0.4,
-    "total_diff": -0.4,
-    "now": 2.6,
-    "old": 3.0
-  },
-  {
-    "date": "2026-07-11",
     "code": "01378",
     "name": "中国宏桥",
     "type": "buy",
@@ -1998,6 +1988,16 @@
     "total_diff": 0.4,
     "now": 0.9,
     "old": 0.5
+  },
+  {
+    "date": "2026-07-11",
+    "code": "002353",
+    "name": "杰瑞股份",
+    "type": "sell",
+    "active_diff": -0.4,
+    "total_diff": -0.4,
+    "now": 2.6,
+    "old": 3.0
   },
   {
     "date": "2026-07-14",
@@ -2091,8 +2091,8 @@
   },
   {
     "date": "2026-08-01",
-    "code": "000408",
-    "name": "藏格矿业",
+    "code": "601225",
+    "name": "陕西煤业",
     "type": "sold",
     "active_diff": -0.6,
     "total_diff": -0.6,
@@ -2101,8 +2101,8 @@
   },
   {
     "date": "2026-08-01",
-    "code": "601225",
-    "name": "陕西煤业",
+    "code": "000408",
+    "name": "藏格矿业",
     "type": "sold",
     "active_diff": -0.6,
     "total_diff": -0.6,
@@ -2131,26 +2131,6 @@
   },
   {
     "date": "2026-08-01",
-    "code": "601899",
-    "name": "紫金矿业",
-    "type": "buy",
-    "active_diff": 0.4,
-    "total_diff": 0.4,
-    "now": 3.6,
-    "old": 3.2
-  },
-  {
-    "date": "2026-08-01",
-    "code": "09992",
-    "name": "泡泡玛特",
-    "type": "buy",
-    "active_diff": 0.4,
-    "total_diff": 0.4,
-    "now": 7.9,
-    "old": 7.5
-  },
-  {
-    "date": "2026-08-01",
     "code": "002986",
     "name": "宇新股份",
     "type": "sell",
@@ -2168,6 +2148,26 @@
     "total_diff": 0.4,
     "now": 3.9,
     "old": 3.5
+  },
+  {
+    "date": "2026-08-01",
+    "code": "601899",
+    "name": "紫金矿业",
+    "type": "buy",
+    "active_diff": 0.4,
+    "total_diff": 0.4,
+    "now": 3.6,
+    "old": 3.2
+  },
+  {
+    "date": "2026-08-01",
+    "code": "09992",
+    "name": "泡泡玛特",
+    "type": "buy",
+    "active_diff": 0.4,
+    "total_diff": 0.4,
+    "now": 7.9,
+    "old": 7.5
   },
   {
     "date": "2026-08-01",
@@ -2211,16 +2211,6 @@
   },
   {
     "date": "2026-08-16",
-    "code": "300750",
-    "name": "宁德时代",
-    "type": "buy",
-    "active_diff": 0.7,
-    "total_diff": 0.7,
-    "now": 2.0,
-    "old": 1.3
-  },
-  {
-    "date": "2026-08-16",
     "code": "600673",
     "name": "东阳光",
     "type": "buy",
@@ -2228,6 +2218,16 @@
     "total_diff": 0.7,
     "now": 2.8,
     "old": 2.1
+  },
+  {
+    "date": "2026-08-16",
+    "code": "300750",
+    "name": "宁德时代",
+    "type": "buy",
+    "active_diff": 0.7,
+    "total_diff": 0.7,
+    "now": 2.0,
+    "old": 1.3
   },
   {
     "date": "2026-08-16",
@@ -2351,16 +2351,6 @@
   },
   {
     "date": "2026-08-22",
-    "code": "01024",
-    "name": "快手-W",
-    "type": "buy",
-    "active_diff": 0.5,
-    "total_diff": 0.5,
-    "now": 1.9,
-    "old": 1.4
-  },
-  {
-    "date": "2026-08-22",
     "code": "600673",
     "name": "东阳光",
     "type": "buy",
@@ -2368,6 +2358,16 @@
     "total_diff": 0.5,
     "now": 2.6,
     "old": 2.1
+  },
+  {
+    "date": "2026-08-22",
+    "code": "01024",
+    "name": "快手-W",
+    "type": "buy",
+    "active_diff": 0.5,
+    "total_diff": 0.5,
+    "now": 1.9,
+    "old": 1.4
   },
   {
     "date": "2026-08-22",
@@ -2414,7 +2414,7 @@
     "code": "002738",
     "name": "中矿资源",
     "type": "sold",
-    "active_diff": -0.401,
+    "active_diff": -0.404,
     "total_diff": -0.4,
     "now": 0.0,
     "old": 0.4
@@ -2424,9 +2424,19 @@
     "code": "02020",
     "name": "安踏体育",
     "type": "buy",
-    "active_diff": 0.321,
+    "active_diff": 0.338,
     "total_diff": 0.3,
     "now": 3.2,
     "old": 2.9
+  },
+  {
+    "date": "2026-08-28",
+    "code": "CRCL",
+    "name": "Circle互联网集团",
+    "type": "sell",
+    "active_diff": -0.594,
+    "total_diff": -0.6,
+    "now": 0.4,
+    "old": 1.0
   }
 ]
