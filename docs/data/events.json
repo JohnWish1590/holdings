@@ -1761,6 +1761,16 @@
   },
   {
     "date": "2026-07-02",
+    "code": "000933",
+    "name": "神火股份",
+    "type": "new",
+    "active_diff": 0.6,
+    "total_diff": 0.6,
+    "now": 0.6,
+    "old": 0.0
+  },
+  {
+    "date": "2026-07-02",
     "code": "601225",
     "name": "陕西煤业",
     "type": "new",
@@ -1773,16 +1783,6 @@
     "date": "2026-07-02",
     "code": "000807",
     "name": "云铝股份",
-    "type": "new",
-    "active_diff": 0.6,
-    "total_diff": 0.6,
-    "now": 0.6,
-    "old": 0.0
-  },
-  {
-    "date": "2026-07-02",
-    "code": "000933",
-    "name": "神火股份",
     "type": "new",
     "active_diff": 0.6,
     "total_diff": 0.6,
@@ -2071,16 +2071,6 @@
   },
   {
     "date": "2026-08-01",
-    "code": "02400",
-    "name": "心动公司",
-    "type": "buy",
-    "active_diff": 0.7,
-    "total_diff": 0.7,
-    "now": 7.9,
-    "old": 7.2
-  },
-  {
-    "date": "2026-08-01",
     "code": "03690",
     "name": "美团-W",
     "type": "buy",
@@ -2091,8 +2081,28 @@
   },
   {
     "date": "2026-08-01",
+    "code": "02400",
+    "name": "心动公司",
+    "type": "buy",
+    "active_diff": 0.7,
+    "total_diff": 0.7,
+    "now": 7.9,
+    "old": 7.2
+  },
+  {
+    "date": "2026-08-01",
     "code": "000408",
     "name": "藏格矿业",
+    "type": "sold",
+    "active_diff": -0.6,
+    "total_diff": -0.6,
+    "now": 0.0,
+    "old": 0.6
+  },
+  {
+    "date": "2026-08-01",
+    "code": "601225",
+    "name": "陕西煤业",
     "type": "sold",
     "active_diff": -0.6,
     "total_diff": -0.6,
@@ -2111,16 +2121,6 @@
   },
   {
     "date": "2026-08-01",
-    "code": "601225",
-    "name": "陕西煤业",
-    "type": "sold",
-    "active_diff": -0.6,
-    "total_diff": -0.6,
-    "now": 0.0,
-    "old": 0.6
-  },
-  {
-    "date": "2026-08-01",
     "code": "000807",
     "name": "云铝股份",
     "type": "buy",
@@ -2131,16 +2131,6 @@
   },
   {
     "date": "2026-08-01",
-    "code": "09992",
-    "name": "泡泡玛特",
-    "type": "buy",
-    "active_diff": 0.4,
-    "total_diff": 0.4,
-    "now": 7.9,
-    "old": 7.5
-  },
-  {
-    "date": "2026-08-01",
     "code": "02015",
     "name": "理想汽车-W",
     "type": "buy",
@@ -2148,6 +2138,16 @@
     "total_diff": 0.4,
     "now": 3.9,
     "old": 3.5
+  },
+  {
+    "date": "2026-08-01",
+    "code": "09992",
+    "name": "泡泡玛特",
+    "type": "buy",
+    "active_diff": 0.4,
+    "total_diff": 0.4,
+    "now": 7.9,
+    "old": 7.5
   },
   {
     "date": "2026-08-01",
@@ -2261,16 +2261,6 @@
   },
   {
     "date": "2026-08-16",
-    "code": "000807",
-    "name": "云铝股份",
-    "type": "sell",
-    "active_diff": -0.4,
-    "total_diff": -0.4,
-    "now": 1.3,
-    "old": 1.7
-  },
-  {
-    "date": "2026-08-16",
     "code": "02015",
     "name": "理想汽车-W",
     "type": "sell",
@@ -2278,6 +2268,16 @@
     "total_diff": -0.4,
     "now": 3.5,
     "old": 3.9
+  },
+  {
+    "date": "2026-08-16",
+    "code": "000807",
+    "name": "云铝股份",
+    "type": "sell",
+    "active_diff": -0.4,
+    "total_diff": -0.4,
+    "now": 1.3,
+    "old": 1.7
   },
   {
     "date": "2026-08-16",
